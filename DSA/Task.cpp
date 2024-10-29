@@ -48,7 +48,7 @@ public:
 		else
 			cout << "Queue OverFlow" << endl;
 	}
-	T Pop() {
+	void  Pop(T &item) {
 		if (!isEmpty()) {
 			if (front == arraysize - 1)
 			{
@@ -56,17 +56,21 @@ public:
 				front = (front + 1) % arraysize;
 
 				count--;
-				return temp;
+				item= temp;
 			}
 			else {
 				T temp = Array[front];
 				front++;
 				count--;
-				return temp;
+				item= temp;
 			}
 		}
 		else
+		{
 			cout << "Queue UnderFlow" << endl;
+			//return 0;
+			exit(1);
+		}
 		
 	}
 };
@@ -118,8 +122,10 @@ int main() {
 		}
 		else if (choice[0] == '2') {
 			bool popflag = true;
+			int a;
 			while (popflag) {
-				cout << "Pop Value is: " << q.Pop()<<endl;
+				q.Pop(a);
+				cout << "Pop Value is: " << a<<endl;
 				bool flag = true;
 				while (flag)
 				{

@@ -60,27 +60,26 @@ public:
 		delete temp;
 		return value;
 	}
-	t deleteFromEnd() {
+	void deleteFromEnd(t & value) {
 		if (!head) {
 			cout << "List is Empty" << endl;
-			/*return;*/
+			return;
 		}
 		if (!head->next) {
 			delete head;
 			head = NULL;
-			/*return;*/
+			return;
 		}
 		Node<t>* temp = head;
 		while (temp->next) {
 			temp = temp->next;
 		}
-		t value;
 		value = temp->item;
 		delete temp->next;
 		temp->next = NULL;
-		return value;
+		return;
 	}
-	t deleteFromMiddle(int position) {
+	void deleteFromMiddle(int position, t& value) {
 		if (position < 1) {
 			cout << "Position should be greater than 1" << endl;
 		
@@ -93,18 +92,17 @@ public:
 		for (int i = 1; i < position; i++) {
 			if (!temp) {
 				cout << "Out of range." << endl;
-
+				return;
 			}
-
 			temp = temp->next;
 		}
 		
-		t value;
+		
 		Node<t>* deletenode = temp->next;
 		temp->next = temp->next->next;
 		value = temp->item;
 		delete temp->next;
-		return value;
+		
 	}
 	void display() {
 		Node<t>* temp = head;
@@ -160,17 +158,25 @@ int main()
 			List.insertatmiddle(value, position);
 		}
 		else if (choice == "4") {
-			cout<<"Value:" << List.deleteFromBegining();
+			cout<<"Value:" << List.deleteFromBegining()<<endl;
 		}
 		else if (choice == "5") {
-			cout << "Value: " << List.deleteFromEnd();
+			int value = NULL;
+			List.deleteFromEnd(value);
+			if (value) {
+				cout << "Value: " << value<<endl;
+			}
+			
 		}
 		else if (choice == "6") {
-			int position;
+			int position, value=NULL;
 			cout << "Enter the position from where you want to delete: ";
 			cin >> position;
-			cout << " Value: " << List.deleteFromMiddle(position);
-		}
+			List.deleteFromMiddle(position, value);
+			if (value) {
+				cout << " Value: " << value;
+			}
+			}
 		else if (choice == "7") {
 			List.display();
 		}
