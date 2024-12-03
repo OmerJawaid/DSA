@@ -33,17 +33,34 @@ public:
 		temp->next = newnode;
 	}
 	void insertatmiddle(t value, int position) {
-		Node <t> * newnode = new Node<t>();
-		newnode->item = value;
-		Node <t> * temp = head;
-		for (int i = 1; i < position; i++) {
+		Node<T>* newnode = new Node<T>(value);
+
+		// Inserting at the head if position is 1
+		if (position == 1) {
+			newnode->next = head;
+			head = newnode;
+			return;
+		}
+
+		// Traverse to the node just before the desired position
+		Node<T>* temp = head;
+		for (int i = 1; i < position - 1; i++) {
+			if (temp == NULL) {
+				cout << "Position out of range" << endl;
+				delete newnode;
+				return;
+			}
 			temp = temp->next;
 		}
-		if (!temp) {
-			cout << "position out of range"<<endl;
+
+		// Check if temp is NULL at the end of traversal
+		if (temp == NULL) {
+			cout << "Position out of range" << endl;
 			delete newnode;
-			/*return;*/
+			return;
 		}
+
+		// Insert the new node at the specified position
 		newnode->next = temp->next;
 		temp->next = newnode;
 	}

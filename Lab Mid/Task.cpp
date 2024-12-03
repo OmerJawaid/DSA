@@ -136,7 +136,7 @@ int main() {
 	string choice;
 	List<int> l1;
 	
-	while (choice !="7") {
+	while (true) {
 		cout << "***********************************************************************" << endl
 			<< "	Welcome to Cricket Teams's Performance System				" << endl
 			<< "***********************************************************************" << endl;
@@ -156,7 +156,7 @@ int main() {
 				if (!(cin >> runs)) {
 					cout << "\nInvalid Input!!!!!!!" << endl;
 					cin.clear();
-					cin.ignore(numeric_limits<streamsize>::max(),'\n');	//got this form internet to stop the infinite loop
+					cin.ignore(numeric_limits<streamsize>::max(),'\n');
 					continue;
 				}
 				l1.addrunsatstart(runs);
@@ -176,7 +176,7 @@ int main() {
 				if (!cin>>runs) {
 					cout << "\nInvalid Input!!!!!!!" << endl;
 					cin.clear();
-					cin.ignore(numeric_limits<streamsize>::max(), '\n');	//got this form internet to stop the infinite loop
+					cin.ignore(numeric_limits<streamsize>::max(), '\n');
 					continue;
 				}
 				l1.addrunsatend(runs);
@@ -220,6 +220,13 @@ int main() {
 		}
 		else if (choice == "7") {
 			exit(0);
+		}
+		else
+		{
+			cout << "Invaild Input Try Again!!!!" << endl;
+			system("pause");
+			system("CLS");
+
 		}
 	}
 }
