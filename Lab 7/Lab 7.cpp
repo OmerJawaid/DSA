@@ -1,206 +1,263 @@
-#include <iostream>
-#include <string>
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<iomanip>
+#include<cstdio>
 using namespace std;
 
-
-class Player {
-public:
-    string playerName;
-    int gamesPlayed;
-    int totalPoints;
-
-    Player(string name, int games, int points)
-        : playerName(name), gamesPlayed(games), totalPoints(points) {}
+struct Node {
+    string name;
+    int age, matchesPlayed, averageScore;
+    Node* prev = NULL;
+    Node* next = NULL;
 };
 
-class Node {
-public:
-    Player player;
-    Node* next;
-
-    Node(Player p) : player(p), next(nullptr) {}
-};
-
-class PlayerQueue {
+class DLL
+{
 private:
-    Node* front;
-    Node* rear;
-    int size;
-    const int MaxPlayers = 30;
-
+    Node* head;
+    Node* tail;
+    int count;
 public:
-    PlayerQueue() : front(nullptr), rear(nullptr), size(0) {}
+    DLL()
+    {
+        head = NULL;
+        tail = NULL;
+        count = 0;
+    }
 
-    ~PlayerQueue() {
-        while (front != nullptr) {
-            Node* temp = front;
-            front = front->next;
-            delete temp;
+    bool isEmpty()
+    {
+        return head == NULL && tail == NULL;
+    }
+
+    void insert_at_head(string n, int a, int mP, int aS)
+    {
+        Node* temp = new Node();
+        temp->name = n;
+        temp->age = a;
+        temp->matchesPlayed = mP;
+        temp->averageScore = aS;
+
+        if (head == NULL && tail == NULL)
+        {
+            head = tail = temp;
+        }
+        else
+        {
+            temp->next = head;
+            head->prev = temp;
+            head = temp;
         }
     }
 
-    bool isFull() const {
-        return size >= MaxPlayers;
+    void insert_at_tail(string n, int a, int mP, int aS)
+    {
+        Node* temp = new Node();
+        temp->name = n;
+        temp->age = a;
+        temp->matchesPlayed = mP;
+        temp->averageScore = aS;
+
+        if (head == NULL && tail == NULL)
+        {
+            head = tail = temp;
+        }
+        else
+        {
+            temp->prev = tail;
+            tail->next = temp;
+            tail = temp;
+        }
     }
 
-    bool isEmpty() const {
-        return front == nullptr;
-    }
-
-    void addPlayer(const Player& player) {
-        if (isFull()) {
-            cout << "Team is full. Cannot add more players.\n";
+    void deletePlayer(string name)
+    {
+        if (isEmpty()) {
+            cout << "List is empty. Cannot delete player." << endl;
             return;
         }
 
-        Node* newNode = new Node(player);
-        if (rear == nullptr) {
-            front = rear = newNode;
+        Node* current = head;
+        while (current && current->name != name) {
+            current = current->next;
+        }
+
+        if (!current) {
+            cout << "Player not found." << endl;
+            return;
+        }
+
+        // If there's only one node in the list.
+        if (current == head && current == tail) {
+            head = tail = NULL;
+        }
+        else if (current == head) {
+            head = head->next;
+            head->prev = NULL;
+        }
+        else if (current == tail) {
+            tail = tail->prev;
+            tail->next = NULL;
         }
         else {
-            rear->next = newNode;
-            rear = newNode;
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
         }
-        size++;
-        cout << "Player added: " << player.playerName << endl;
+
+        delete current;
+
+        string file = name + ".txt";
+        if (remove(file.c_str()) == 0) {
+            cout << "Player file deleted successfully: " << file << endl;
+        }
+        else {
+            perror("Error deleting file");
+        }
     }
 
-    void removePlayer() {
-        if (isEmpty()) {
-            cout << "No players to remove.\n";
+    void displayPlayer(string name)
+    {
+        ifstream fin(name + ".txt");
+        if (!fin) {
+            cerr << "Error: File for player '" << name << "' not found!" << endl;
             return;
         }
 
-        Node* temp = front;
-        front = front->next;
-        cout << "Player removed: " << temp->player.playerName << endl;
-        delete temp;
-        size--;
+        cout << "Displaying data for player: " << name << endl;
+        string line;
+        while (getline(fin, line)) {
+            cout << line << endl;
+        }
+        fin.close();
     }
 
-    void displayPlayers() const {
+    void displayAll()
+    {
         if (isEmpty()) {
-            cout << "No players in the team.\n";
+            cout << "List is empty." << endl;
             return;
         }
 
-        Node* current = front;
-        cout << "Players in the team:\n";
-        while (current != nullptr) {
-            cout << "Name: " << current->player.playerName
-                << ", Matches Played: " << current->player.gamesPlayed
-                << ", Total Score: " << current->player.totalPoints << endl;
+        Node* current = head;
+        while (current) {
+            cout << "Name: " << current->name
+                << ", Age: " << current->age
+                << ", Matches Played: " << current->matchesPlayed
+                << ", Average Score: " << current->averageScore << endl;
             current = current->next;
         }
-    }
-
-    void updatePlayerStats(const string& name, int games, int points) {
-        Node* current = front;
-        while (current != nullptr) {
-            if (current->player.playerName == name) {
-                current->player.gamesPlayed = games;
-                current->player.totalPoints = points;
-                cout << "Updated stats for " << name << endl;
-                return;
-            }
-            current = current->next;
-        }
-        cout << "Player not found.\n";
-    }
-
-    void searchPlayer(const string& name) const {
-        Node* current = front;
-        while (current != nullptr) {
-            if (current->player.playerName == name) {
-                cout << "Player found:\n";
-                cout << "Name: " << current->player.playerName
-                    << ", Matches Played: " << current->player.gamesPlayed
-                    << ", Total Score: " << current->player.totalPoints << endl;
-                return;
-            }
-            current = current->next;
-        }
-        cout << "Player not found.\n";
     }
 };
 
-int getValidatedInput(const string& prompt) {
-    int value;
-    while (true) {
-        cout << prompt;
-        cin >> value;
-        if ( value >= 0) {
-            cin.ignore(1000, '\n');
-            return value;
-        }
-        cout << "Invalid input! Please enter a positive number.\n";
-        cin.clear();
-        cin.ignore(1000, '\n');
-    }
-}
+int main()
+{
+    DLL l;
+    string choice;
 
-int main() {
-    PlayerQueue cricketTeam;
-    int choice;
-
-    while (true) {
-      
-        cout << "CRICKET TEAM MANAGEMENT SYSTEM"<<endl
-        << "1. Add Player"<<endl
-         << "2. Remove Player"<<endl
-         << "3. View All Players"<<endl
-         << "4. Update Player Stats"<<endl
-         << "5. Search Player"<<endl
-         << "6. Exit"<<endl
-        << "Enter your choice: ";
+    do {
+        cout << "\n1) Insert Player \n2) Remove Player \n3) Display Player \n4) Display All Players. \n0) Exit. \nEnter choice = ";
         cin >> choice;
+        cout << endl;
 
-        if (choice < 1 || choice > 6) {
-            cout << "Invalid choice! Please select a valid option from the menu.\n";
-            cin.clear();
-            cin.ignore(1000, '\n');
-            continue;
-        }
+        if (choice == "1")
+        {
+            string name;
+            int age, matchesPlayed, averageScore;
 
-        string name;
-        int games, points;
-
-        if (choice == 1) {
-            cout << "Enter player name: ";
+            cout << "Enter Player Name = ";
             cin.ignore();
             getline(cin, name);
-            games = getValidatedInput("Enter matches played: ");
-            points = getValidatedInput("Enter total score: ");
-            cricketTeam.addPlayer(Player(name, games, points));
+            if (name.empty())
+            {
+                cerr << "Error: Name cannot be empty.\n";
+                continue;
+            }
+
+            cout << "Enter Player Age = ";
+            cin >> age;
+            if (cin.fail() || age <= 0)
+            {
+                cerr << "Error: Invalid age. Please enter a positive integer.\n";
+                cin.clear();
+                cin.ignore();
+                continue;
+            }
+
+            cout << "Enter No. of Matches Played by Player = ";
+            cin >> matchesPlayed;
+            if (cin.fail() || matchesPlayed < 0)
+            {
+                cerr << "Error: Invalid matches played. Please enter a non-negative integer.\n";
+                cin.clear();
+                cin.ignore();
+                continue;
+            }
+
+            cout << "Enter Average score of player = ";
+            cin >> averageScore;
+            if (cin.fail() || averageScore < 0)
+            {
+                cerr << "Error: Invalid average score. Please enter a non-negative integer.\n";
+                cin.clear();
+                cin.ignore();
+                continue;
+            }
+
+            l.insert_at_tail(name, age, matchesPlayed, averageScore);
+
+            ofstream fout(name + ".txt");
+            if (!fout) {
+                cerr << "Error creating file for " << name << endl;
+                continue;
+            }
+
+            fout << "Name: " << name << endl;
+            fout << "Age: " << age << endl;
+            fout << "Matches Played: " << matchesPlayed << endl;
+            fout << "Average Score: " << averageScore << endl;
+            fout.close();
+            cout << "Player file created successfully: " << name + ".txt" << endl;
         }
-        else if (choice == 2) {
-            cricketTeam.removePlayer();
+        else if (choice == "2")
+        {
+            string playerName;
+            cout << "Enter Name of player you want to delete = ";
+            cin.ignore();
+            getline(cin, playerName);
+            if (playerName.empty())
+            {
+                cerr << "Error: Name cannot be empty.\n";
+                continue;
+            }
+            l.deletePlayer(playerName);
         }
-        else if (choice == 3) {
-            cricketTeam.displayPlayers();
-        }
-        else if (choice == 4) {
-            cout << "Enter player name to update: ";
+        else if (choice == "3")
+        {
+            string name;
+            cout << "Enter Name of Player = ";
             cin.ignore();
             getline(cin, name);
-            games = getValidatedInput("Enter new matches played: ");
-            points = getValidatedInput("Enter new total score: ");
-            cricketTeam.updatePlayerStats(name, games, points);
+            if (name.empty())
+            {
+                cerr << "Error: Name cannot be empty.\n";
+                continue;
+            }
+            l.displayPlayer(name);
         }
-        else if (choice == 5) {
-            cout << "Enter player name to search: ";
-            cin.ignore();
-            getline(cin, name);
-            cricketTeam.searchPlayer(name);
+        else if (choice == "4")
+        {
+            l.displayAll();
         }
-        else if (choice == 6) {
-            cout << "Exiting program. Goodbye!\n";
-            break;
+        else if (choice == "0")
+        {
+            cout << "Exiting" << endl;
         }
-        else {
-            cout << "Invalid choice. Please select a valid option.\n";
+        else
+        {
+            cout << "Invalid input. Please enter a number between 0 and 4.\n";
         }
-    }
+    } while (choice != "0");
 
     return 0;
 }

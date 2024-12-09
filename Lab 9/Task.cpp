@@ -59,20 +59,71 @@ public:
         if (root == nullptr) {
             return;
         }
-        Pre_Order_Traversal(root->left);
+        In_Order_Traversal(root->left);
         cout << root->info << endl;
         
-        Pre_Order_Traversal(root->right);
+        In_Order_Traversal(root->right);
     }
     void Post_Order_Traversal(Node* root) {
         if (root == nullptr) {
             return;
         }
-        Pre_Order_Traversal(root->left);
-        Pre_Order_Traversal(root->right);
+        Post_Order_Traversal(root->left);
+        Post_Order_Traversal(root->right);
         cout << root->info << endl;
     }
 
+    Node* Left_Brother(Node* temp, int num) {
+        if (temp == nullptr) { return nullptr; }
+        if (temp->right && temp->right->info == num) {
+            return temp->left;
+        }
+        Node* LeftBrother = Left_Brother(temp->left, num);
+        if (LeftBrother) {
+            return LeftBrother;
+        }
+        return Left_Brother(temp->right, num);
+    }
+
+    Node* Right_Brother(Node* root, int num) {
+        if (root == nullptr) { return nullptr; }
+        if (root->left && root->left->info == num) {
+            return root->right;
+        }
+        Node* RightBrother = Right_Brother(root->right, num);
+        if (RightBrother) {
+            return RightBrother;
+        }
+        return Right_Brother(root->left, num);
+    }
+
+    Node* Parent(Node* root, int num) {
+        if (root == nullptr) {
+            return nullptr;
+        }
+        if ((root->left && root->left->info == num) || (root->right && root->right->info == num)) {
+            return root;
+        }
+        Node* LeftParent = Parent(root->left, num);
+        if (LeftParent) {
+            return LeftParent;
+        }
+        return Parent(root->right, num);
+    }
+
+    pair<Node*, Node*> Child(Node* root, int num) {
+        if (root == nullptr) {
+            return { nullptr, nullptr };
+        }
+        if (root->info == num) {
+            return { root->left, root->right };
+        }
+        auto LeftChildren = Child(root->left, num);
+        if (LeftChildren.first || LeftChildren.second) {
+            return LeftChildren;
+        }
+        return Child(root->right, num);
+    }
 };
 int main() {
     Binary_Tree tree;
@@ -81,18 +132,22 @@ int main() {
     bool treeBuilt = false;
 
     while (true) {
-        cout << "Menu:" << endl
+        cout << "Welcome to Binary Tree Implementation" << endl
             << "1. Build Tree" << endl
             << "2. Pre-Order Traversal" << endl
             << "3. In-Order Traversal" << endl
             << "4. Post-Order Traversal" << endl
-            << "5. Exit" << endl
+            << "5. Check Parent of a node"<<endl
+            << "6. Check Left Brother of a node"<<endl
+            << "7. Check Right Brother of a node"<<endl
+            << "8. Check both children of a parent"<<endl
+            << "9. Exit" << endl
             << "Enter your choice: ";
         cin >> choice;
 
         if (choice == 1) {
             int size;
-            cout << "Enter the number of elements in the array e.g (17): ";
+            cout << "Enter the number of elements in the array e.g (13): ";
             cin >> size;
 
             if (size <= 0) {
@@ -100,7 +155,7 @@ int main() {
             }
             else {
                 int* arr = new int[size];
-                cout << "Enter the elements (-1 for NULL nodes):\n";
+                cout << "Enter the elements (-1 for NULL nodes) e.g (1,2,4,-1,-1,5,-1,-1,3,-1,6,-1,-1):\n";
                 for (int i = 0; i < size; i++) {
                     cin >> arr[i];
                 }
@@ -145,7 +200,66 @@ int main() {
             }
 
         }
-        else if (choice == 5) {
+        else if(choice==5){
+            int number;
+            cout << "Enter the node value to find its parent: ";
+            cin >> number;
+
+            Node* parent = tree.Parent(root, number);
+            if (parent) {
+                cout << "The parent of " << number << " is: " << parent->info << endl;
+            }
+            else {
+                cout << "No parent found." << endl;
+            }
+        }
+        else if(choice==6){
+            int number;
+            cout << "Enter the node value to find its left brother: ";
+            cin >> number;
+
+            Node* leftBrother = tree.Left_Brother(root, number);
+            if (leftBrother) {
+                cout << "The left brother of " << number << " is: " << leftBrother->info << endl;
+            }
+            else {
+                cout << "No left brother found." << endl;
+            }
+        }
+        else if(choice==7){
+            int number;
+            cout << "Enter the node value to find its right brother: ";
+            cin >> number;
+
+            Node* rightBrother = tree.Right_Brother(root, number);
+            if (rightBrother) {
+                cout << "The right brother of " << number << " is: " << rightBrother->info << endl;
+            }
+            else {
+                cout << "No right brother found." << endl;
+            }
+        }
+        else if(choice==8){
+            int parentValue;
+            cout << "Enter parent value to find its children: ";
+            cin >> parentValue;
+
+            auto children = tree.Child(root, parentValue);
+            if (children.first) {
+                cout << "Left child of " << parentValue << ": " << children.first->info << endl;
+            }
+            else {
+                cout << "No left child of " << parentValue << endl;
+            }
+
+            if (children.second) {
+                cout << "Right child of " << parentValue << ": " << children.second->info << endl;
+            }
+            else {
+                cout << "No right child of " << parentValue << endl;
+            }
+        }
+        else if (choice == 9) {
             cout << "Exiting program.\n";
             return 0;
 
@@ -153,6 +267,9 @@ int main() {
         else {
             cout << "Invalid choice. Please try again.\n";
         }
+        system("pause");
+        system("CLS");
+
     }
 
     return 0;
